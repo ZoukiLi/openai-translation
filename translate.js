@@ -135,8 +135,10 @@ const fetchTranslation = async (id, lang) => {
         return;
     }
     // show time at most 2 decimal places
+    pushHandleDomChanges();
     translation.textContent = result + (showTimeTaken ? ` (${timeTaken.toFixed(2)} ms)` : "");
     translation.style.display = "block";
+    popHandleDomChanges();
 };
 
 
@@ -197,6 +199,7 @@ const runAllTranslation = async () => {
 }
 
 const toggleRunOrPause = async (sender) => {
+    pushHandleDomChanges();
     if (isRunning) {
         isRunning = false;
         sender.innerHTML = runIconHTML;
@@ -213,6 +216,7 @@ const toggleRunOrPause = async (sender) => {
 
     isRunning = false;
     sender.innerHTML = runIconHTML;
+    popHandleDomChanges();
 }
 
 const addRunAllButton = () => {
@@ -236,3 +240,36 @@ const initTranslationAreas = () => {
 
 // initialize the translation areas when the page loads
 window.onload = initTranslationAreas;
+
+// handel dom change
+// set up the mutation observer
+const observer = new MutationObserver((mutations) => {
+    // if the DOM changes should not be handled, return
+    if (!getHandleDomChanges()) {
+        return;
+    }
+    // if mutation contains the translation area, return
+    for (const mutation of mutations) {
+        if (mutation.target.classList.contains(className)) {
+            return;
+        }
+    }
+
+    // otherwise, handle the DOM changes
+    pushHandleDomChanges();
+    initTranslationAreas();
+    popHandleDomChanges();
+});
+
+// start observing the DOM
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+});
+
+// flag to indicate whether the DOM changes should be handled
+let handleDomChangesDepth = 0;
+let pushHandleDomChanges = () => handleDomChangesDepth++;
+let popHandleDomChanges = () => handleDomChangesDepth--;
+let getHandleDomChanges = () => handleDomChangesDepth === 0;
+
