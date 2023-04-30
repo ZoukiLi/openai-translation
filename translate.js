@@ -91,9 +91,15 @@ const fetchTranslation = async (id, lang) => {
     const prompt = `Translate the following paragraph into ${lang}:\n${wordsText}\n\n${lang} Translation:`;
     console.log(prompt);
 
+    // time how long it takes to translate
+    const startTime = performance.now();
     const result = await fetchOpenai(prompt);
+    const endTime = performance.now();
+    const timeTaken = endTime - startTime;
+    console.log(`Time taken: ${timeTaken} ms`);
+
     const translation = document.getElementById(getElementName(id).spanName);
-    translation.textContent = result;
+    translation.textContent = result + ` ${timeTaken} ms`
     translation.style.display = "block";
 };
 
