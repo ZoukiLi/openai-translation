@@ -1,5 +1,6 @@
 const apiUrl = "https://api.openai.com/v1/completions";
-// const apiKey = "your-api-key-here";
+// get from GM
+const apiKey = GM_getValue("openaiTranslationApiKey");
 const destinationLang = "Chinese (Simplified)";
 const showTimeTaken = true;
 const sleepTime = 1000;
