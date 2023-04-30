@@ -22,8 +22,6 @@ You can get an API key from https://platform.openai.com/account/api-keys`);
             return;
         }
     }
-    // Store API key in a variable
-    window.apiKey = GM_getValue("openaiTranslationApiKey");
 
     // Check if destination language has been set, if not, prompt user for destination language and store it
     const destinationLang = GM_getValue("openaiTranslationDestinationLang");
@@ -35,8 +33,7 @@ You can get an API key from https://platform.openai.com/account/api-keys`);
             GM_setValue("openaiTranslationDestinationLang", "Chinese (Simplified)");
         }
     }
-    // Store destination language in a variable
-    window.destinationLang = GM_getValue("openaiTranslationDestinationLang");
+    localStorage.setItem("openaiTranslationDestinationLang", GM_getValue("openaiTranslationDestinationLang"));
 
     // Load CSS file
     const cssResponse = await fetch('https://raw.githubusercontent.com/ZoukiLi/openai-translation/main/openai-translate-style.css');
@@ -48,7 +45,9 @@ You can get an API key from https://platform.openai.com/account/api-keys`);
     // Load JavaScript file with API key as query parameter
     const jsResponse = await fetch(`https://raw.githubusercontent.com/ZoukiLi/openai-translation/main/translate.js`);
     const jsText = await jsResponse.text();
+    // replace API key in JavaScript file
+    const jsTextWithKey = jsText.replace('<API_KEY_HERE>', apiKey);
     const jsFile = document.createElement("script");
-    jsFile.textContent = jsText;
+    jsFile.textContent = jsTextWithKey;
     document.body.appendChild(jsFile);
 })();
