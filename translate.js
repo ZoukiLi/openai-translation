@@ -6,26 +6,26 @@ const destinationLang = "Chinese";
 // returns a promise that resolves to the translated text
 // on error, returns a promise that resolves to "Error translating text"
 const fetchOpenai = async (input) => {
-  const data = JSON.stringify({
-    model: "text-davinci-003",
-    prompt: input,
-    max_tokens: 2048,
-  });
-
-  return fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: data,
-  })
-    .then((response) => response.json())
-    .then((json) => json.choices[0].text)
-    .catch((error) => {
-        console.error(error);
-        return "Error translating text";
+    const data = JSON.stringify({
+        model: "text-davinci-003",
+        prompt: input,
+        max_tokens: 2048,
     });
+
+    return fetch(apiUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+        },
+        body: data,
+    })
+        .then((response) => response.json())
+        .then((json) => json.choices[0].text)
+        .catch((error) => {
+            console.error(error);
+            return "Error translating text";
+        });
 }
 
 // class name for the translation area
@@ -56,25 +56,25 @@ const getOriginalParagraphs = () => {
     const checkAncestor = (element) => {
         // get the parent node
         const parent = element.parentNode;
-        
+
         // if there is no parent, return false
         if (!parent) {
             return false;
         }
-        
+
         // if the parent is already in the elements array, return true
         if (elements.includes(parent)) {
             return true;
         }
-        
+
         // otherwise, recurse with the parent element
         return checkAncestor(parent);
     };
-    
+
     const filteredElements = elements.filter((element) => {
         return element.textContent.trim() !== ""
-                && !element.classList.contains(className)
-                && !checkAncestor(element);
+            && !element.classList.contains(className)
+            && !checkAncestor(element);
     }
     );
     return filteredElements;
@@ -99,6 +99,10 @@ const fetchTranslation = async (id, lang) => {
     console.log(`Time taken: ${timeTaken} ms`);
 
     const translation = document.getElementById(getElementName(id).spanName);
+    if (!translation) {
+        console.error(`Could not find translation span for id ${id}`);
+        return;
+    }
     translation.textContent = result + ` ${timeTaken} ms`
     translation.style.display = "block";
 };
@@ -110,11 +114,11 @@ const createTranslationArea = (id) => {
     translationArea.id = getElementName(id).translationAreaName;
     translationArea.className = className;
     translationArea.style.display = "flex";
-    
+
     const translation = document.createElement("span");
     translation.id = getElementName(id).spanName;
     translation.className = className;
-    
+
     const button = document.createElement("button");
     button.id = getElementName(id).buttonName;
     button.className = className;
@@ -127,7 +131,7 @@ const createTranslationArea = (id) => {
     button.innerHTML = runIconHTML;
     // call fetchTranslation when the button is clicked
     button.onclick = async () => { await fetchTranslation(id, destinationLang); }
-    
+
     translationArea.appendChild(button);
     translationArea.appendChild(translation);
     return translationArea;
@@ -149,7 +153,7 @@ const addTranslationAreas = () => {
         const paragraph = originContents[i];
         const translationArea = createTranslationArea(i);
         // insert the translation area after the paragraph
-        paragraph.parentNode.insertBefore(translationArea, paragraph.nextSibling);        
+        paragraph.parentNode.insertBefore(translationArea, paragraph.nextSibling);
     }
 }
 
