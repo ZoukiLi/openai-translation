@@ -1,7 +1,7 @@
 const apiUrl = "https://api.openai.com/v1/completions";
-// get from GM
-const apiKey = GM_getValue("openaiTranslationApiKey");
-const destinationLang = "Chinese (Simplified)";
+// get from window
+const apiKey = window.apiKey || '';
+const destinationLang = window.destinationLang || 'Chinese (Simplified)';
 const showTimeTaken = true;
 const sleepTime = 1000;
 const tagNamesToCheck = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"];
