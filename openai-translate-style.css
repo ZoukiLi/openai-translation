@@ -1,0 +1,25 @@
+.openai-translation-button-class {
+  display: inline-block;
+  background-color: rgb(144, 204, 225);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #444;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.openai-translation-button-class:hover {
+    background-color: rgb(109, 150, 165);
+    color: #333;
+}
+.openai-translation-button-class:focus {
+  background-color: #8d8aac;
+  color: #333;
+}
+
+.openai-translation-button-class:active {
+  background-color: #6176d3;
+}

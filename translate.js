@@ -1,6 +1,6 @@
 const apiUrl = "https://api.openai.com/v1/completions";
 // const apiKey = "your-api-key-here";
-const destinationLang = "Chinese";
+const destinationLang = "Chinese (Simplified)";
 const showTimeTaken = true;
 const sleepTime = 1000;
 const tagNamesToCheck = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"];
@@ -59,6 +59,7 @@ const fetchOpenai = async (input) => {
 
 // class name for the translation area
 const className = 'openai-translation-class';
+const buttonClassName = 'openai-translation-button-class';
 // name for the translation area, button, and other elements
 // args: id - the id of the paragraph
 // returns a map for the ids of the translation area, button, and span
@@ -151,7 +152,7 @@ const createTranslationArea = (id) => {
 
     const button = document.createElement("button");
     button.id = getElementName(id).buttonName;
-    button.className = className;
+    button.className = className + " " + buttonClassName;
     button.innerHTML = runIconHTML;
     // call fetchTranslation when the button is clicked
     button.onclick = () => fetchTranslation(id, destinationLang);
@@ -216,28 +217,10 @@ const toggleRunOrPause = async (sender) => {
 const addRunAllButton = () => {
     const button = document.createElement("button");
     button.id = "openai-run-all-button";
-    button.className = className;
+    button.className = className + " " + buttonClassName;
 
     button.innerHTML = runIconHTML;
-    button.onclick = async () => {
-        if (isRunning) {
-            isRunning = false;
-            button.innerHTML = runIconHTML;
-        } else {
-            isRunning = true;
-            button.innerHTML = pauseIconHTML;
-            for (let i = 0; i < originContents.length; i++) {
-                if (!isRunning) {
-                    break;
-                }
-                await fetchTranslation(i, destinationLang);
-                // sleep for 1 second
-                await new Promise(r => setTimeout(r, 1000));
-            }
-            isRunning = false;
-            button.innerHTML = runIconHTML;
-        }
-    };
+    button.onclick = () => toggleRunOrPause(button);
     // insert the button to the top of the page
     document.body.insertBefore(button, document.body.firstChild);
 }
