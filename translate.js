@@ -1,6 +1,35 @@
 const apiUrl = "https://api.openai.com/v1/completions";
 // const apiKey = "your-api-key-here";
 const destinationLang = "Chinese";
+const showTimeTaken = true;
+const sleepTime = 1000;
+const tagNamesToCheck = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"];
+
+// icons
+const runIconHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right" viewBox="0 0 16 16">
+    <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z"/>
+</svg>
+    `;
+const pauseIconHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-fill" viewBox="0 0 16 16">
+    <path d="M6 5h2v6H6V5zm4 0h2v6h-2V5z"/>
+</svg>
+    `;
+
+// prompt to send to OpenAI's API
+const getPrompt = (text) => 
+`Translate the following paragraph into ${destinationLang}:
+${text}
+
+${destinationLang} Translation:`;
+// debug mode
+const debug = false;
+const debugLog = (message) => {
+    if (debug) {
+        console.log(message);
+    }
+};
 
 // Function to send a request to OpenAI's API
 // returns a promise that resolves to the translated text
@@ -44,7 +73,6 @@ const getElementName = (id) => {
 // paragraphs on the page to translate
 // remove the translation areas by class name
 const getOriginalParagraphs = () => {
-    const tagNamesToCheck = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"];
 
     // get all elements with the tag names
     const elements = tagNamesToCheck.flatMap((tagName) => {
@@ -53,7 +81,7 @@ const getOriginalParagraphs = () => {
     // filter out elements that are empty or have no text
     // or with openai-translation-class
     // or one of its ancestors is already in elements
-    const checkAncestor = (element) => {
+    const checkAncestorInList = (element) => {
         // get the parent node
         const parent = element.parentNode;
 
@@ -68,13 +96,13 @@ const getOriginalParagraphs = () => {
         }
 
         // otherwise, recurse with the parent element
-        return checkAncestor(parent);
+        return checkAncestorInList(parent);
     };
 
     const filteredElements = elements.filter((element) => {
         return element.textContent.trim() !== ""
             && !element.classList.contains(className)
-            && !checkAncestor(element);
+            && !checkAncestorInList(element);
     }
     );
     return filteredElements;
@@ -88,22 +116,24 @@ const fetchTranslation = async (id, lang) => {
     const cleanText = text.replace(/(<([^>]+)>)/gi, '');
     const words = cleanText.split(/\s+/);
     const wordsText = words.join(' ');
-    const prompt = `Translate the following paragraph into ${lang}:\n${wordsText}\n\n${lang} Translation:`;
-    console.log(prompt);
+    const prompt = getPrompt(wordsText);
+    debugLog(`Prompt: ${prompt}`);
 
     // time how long it takes to translate
     const startTime = performance.now();
     const result = await fetchOpenai(prompt);
     const endTime = performance.now();
     const timeTaken = endTime - startTime;
-    console.log(`Time taken: ${timeTaken} ms`);
+    debugLog(`Result: ${result}`);
+    debugLog(`Time taken: ${timeTaken} ms`);
 
     const translation = document.getElementById(getElementName(id).spanName);
     if (!translation) {
         console.error(`Could not find translation span for id ${id}`);
         return;
     }
-    translation.textContent = result + ` ${timeTaken} ms`
+    // show time at most 2 decimal places
+    translation.textContent = result + (showTimeTaken ? ` (${timeTaken.toFixed(2)} ms)` : "");
     translation.style.display = "block";
 };
 
@@ -122,15 +152,9 @@ const createTranslationArea = (id) => {
     const button = document.createElement("button");
     button.id = getElementName(id).buttonName;
     button.className = className;
-    // set the button icon as `run` icon
-    const runIconHTML = `
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right" viewBox="0 0 16 16">
-  <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z"/>
-</svg>
-    `;
     button.innerHTML = runIconHTML;
     // call fetchTranslation when the button is clicked
-    button.onclick = async () => { await fetchTranslation(id, destinationLang); }
+    button.onclick = () => fetchTranslation(id, destinationLang);
 
     translationArea.appendChild(button);
     translationArea.appendChild(translation);
@@ -158,23 +182,42 @@ const addTranslationAreas = () => {
 }
 
 // add a button to run all translations or pause all translations
-// sleep for 1 second between each translation
 let isRunning = false;
+
+const runAllTranslation = async () => {
+    for (let i = 0; i < originContents.length; i++) {
+        if (!isRunning) {
+            break;
+        }
+        await fetchTranslation(i, destinationLang);
+        await new Promise(r => setTimeout(r, sleepTime));
+    }
+}
+
+const toggleRunOrPause = async (sender) => {
+    if (isRunning) {
+        isRunning = false;
+        sender.innerHTML = runIconHTML;
+        return;
+    }
+    isRunning = true;
+    sender.innerHTML = pauseIconHTML;
+    // catch all errors so that the button can be reset
+    try {
+        await runAllTranslation();
+    } catch (e) {
+        console.error(e);
+    }
+
+    isRunning = false;
+    sender.innerHTML = runIconHTML;
+}
+
 const addRunAllButton = () => {
     const button = document.createElement("button");
     button.id = "openai-run-all-button";
     button.className = className;
 
-    const runIconHTML = `
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-right" viewBox="0 0 16 16">
-    <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z"/>
-</svg>
-    `;
-    const pauseIconHTML = `
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pause-fill" viewBox="0 0 16 16">
-    <path d="M6 5h2v6H6V5zm4 0h2v6h-2V5z"/>
-</svg>
-    `;
     button.innerHTML = runIconHTML;
     button.onclick = async () => {
         if (isRunning) {
