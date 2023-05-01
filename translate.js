@@ -171,6 +171,11 @@ const getOriginalParagraphs = () => {
         // get the parent node
         const parent = element.parentNode;
 
+        // if parent is window, return false
+        if (parent === window) {
+            return false;
+        }
+
         // if there is no parent, return true
         if (!parent) {
             return true;
