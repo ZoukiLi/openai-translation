@@ -85,36 +85,35 @@ const fetchOpenaiTranslation = async (text, targetLang) => {
 // translate the text using the deep-translator API
 
 const fetchDeepLTranslation = async (text, targetLang) => {
-  const url = 'https://deep-translator-api.azurewebsites.net/google/';
-  const params = {
-    source: 'auto',
-    target: targetLang,
-    text: text,
-    proxies: []
-  };
-  const headers = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  };
+    const url = 'https://deep-translator-api.azurewebsites.net/google/';
+    const params = {
+        source: 'auto',
+        target: targetLang,
+        text: text
+    };
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    };
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(params)
-    });
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(params)
+        });
 
-    const result = await response.json();
+        const result = await response.json();
 
-    if (result.error) {
-      throw new Error(result.error);
+        if (result.error) {
+            throw new Error(result.error);
+        }
+
+        return result.translation;
+    } catch (error) {
+        debugLog(`Error: ${error.message}`);
+        return "Error translating text";
     }
-
-    return result.translation;
-  } catch (error) {
-    debugLog(`Error: ${error.message}`);
-    return "Error translating text";
-  }
 };
 
 const translationMethodMap = {

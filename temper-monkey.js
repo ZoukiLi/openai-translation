@@ -106,27 +106,28 @@ You can get an API key from <a href="https://platform.openai.com/account/api-key
         // Save configuration values to localStorage
         const newTargetLang = document.querySelector('#target-lang').value;
         localStorage.setItem('openaiTranslationTargetLang', newTargetLang);
+        GM_setValue('openaiTranslationTargetLang', newTargetLang);
 
         const newTranslationMethod = document.querySelector('#translation-method').value;
         localStorage.setItem('openaiTranslationMethod', newTranslationMethod);
+        GM_setValue('openaiTranslationMethod', newTranslationMethod);
 
         const newShowTimeTaken = document.querySelector('#show-time-taken').checked;
         localStorage.setItem('openaiTranslationShowTimeTaken', JSON.stringify(newShowTimeTaken));
+        GM_setValue('openaiTranslationShowTimeTaken', newShowTimeTaken);
 
         const newSleepTime = document.querySelector('#sleep-time').value;
         localStorage.setItem('openaiTranslationSleepTime', newSleepTime);
+        GM_setValue('openaiTranslationSleepTime', newSleepTime);
     });
 
-    // Toggle between OpenAI and DeepL translation methods
-    document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey && event.shiftKey && event.key === 'T') {
-            const currentMethod = localStorage.getItem('openaiTranslationMethod') || 'openai';
-            const newMethod = currentMethod === 'openai' ? 'deepl' : 'openai';
-            localStorage.setItem('openaiTranslationMethod', newMethod);
-            location.reload();
-        }
-    });
-
+    // Toggle show configuration page menu command
+    const showConfigPage = GM_getValue("openaiTranslationShowConfigPage") ?? false;
+    if (showConfigPage) {
+        configPage.style.display = 'block';
+    } else {
+        configPage.style.display = 'none';
+    }
 
     // Load CSS file
     const cssResponse = await fetch('https://raw.githubusercontent.com/ZoukiLi/openai-translation/main/openai-translate-style.css');
@@ -151,12 +152,13 @@ You can get an API key from <a href="https://platform.openai.com/account/api-key
             alert("API key reset successful. Please reload the page to apply changes.");
         }
     });
-    // Toggle show configuration page menu command
     GM_registerMenuCommand("Toggle OpenAI Translation Configuration Page", function () {
-        if (configPage.style.display === 'none') {
-            configPage.style.display = 'block';
-        } else {
+        if (showConfigPage) {
             configPage.style.display = 'none';
+            GM_setValue("openaiTranslationShowConfigPage", false);
+        } else {
+            configPage.style.display = 'block';
+            GM_setValue("openaiTranslationShowConfigPage", true);
         }
     });
 })();
