@@ -320,7 +320,7 @@ const toggleRunOrPause = async (sender) => {
 // add a top span to contain the run all button and reload button
 
 const addTopSpan = () => {
-    const topSpan = document.createElement("span");
+    const topSpan = document.createElement("div");
     topSpan.id = "openai-top-span";
     topSpan.className = className + " " + spanClassName;
     debugLog(`Adding top span with class ${topSpan.className}`);
