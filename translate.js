@@ -282,14 +282,6 @@ const observer = new MutationObserver((mutations) => {
     if (!getHandleDomChanges()) {
         return;
     }
-    
-    // if the DOM changes are all from the translation areas, return
-    if (mutations.every(mutation => {
-        const target = mutation.target;
-        return target.className === className || target.parentNode.className === className;
-    })) {
-        return;
-    }
 
     debugLog(`DOM changed, ${mutations.length} mutations`)
     debugLog(mutations);
