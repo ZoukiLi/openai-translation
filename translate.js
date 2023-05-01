@@ -10,7 +10,7 @@ const getTranslationMethod = () => localStorage.getItem("openaiTranslationMethod
 const getShowTimeTaken = () => JSON.parse(localStorage.getItem("openaiTranslationShowTimeTaken")) ?? false;
 const getSleepTime = () => localStorage.getItem("openaiTranslationSleepTime") ?? 1000;
 
-const tagNamesToCheck = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"];
+const tagNamesToCheck = ["p", "h1", "h2", "h3", "h4", "h5", "h6"];
 
 // icons
 const runIconHTML = `
