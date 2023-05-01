@@ -322,7 +322,7 @@ const toggleRunOrPause = async (sender) => {
 const addTopSpan = () => {
     const topSpan = document.createElement("div");
     topSpan.id = "openai-top-span";
-    topSpan.className = className + " " + spanClassName;
+    topSpan.className = className + " " + topClassName;
     debugLog(`Adding top span with class ${topSpan.className}`);
 
     // insert the top span to the top of the page
