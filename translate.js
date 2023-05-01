@@ -34,8 +34,7 @@ const getPrompt = (text) =>
 ${text}
 
 ${destinationLang} Translation:`;
-// debug mode
-const debug = false;
+// debug mode - set to true to see debug messages
 const debugLog = (message) => {
     if (debug) {
         console.log(message);
@@ -179,9 +178,9 @@ const createTranslationArea = (id) => {
 const removeTranslationAreas = () => {
     // get all translation areas
     const translationAreas = document.getElementsByClassName(className);
-    for (const translationArea of translationAreas) {
-        // remove the translation area from the document
-        translationArea.remove();
+    // remove all translation areas
+    while (translationAreas.length > 0) {
+        translationAreas[0].parentNode.removeChild(translationAreas[0]);
     }
 }
 
@@ -190,6 +189,7 @@ const addTranslationAreas = () => {
     for (let i = 0; i < originContents.length; i++) {
         const paragraph = originContents[i];
         const translationArea = createTranslationArea(i);
+        debugLog(`Adding translation area ${translationArea.id}`);
         // insert the translation area after the paragraph
         paragraph.parentNode.insertBefore(translationArea, paragraph.nextSibling);
     }
@@ -233,6 +233,7 @@ const addRunAllButton = () => {
     const button = document.createElement("button");
     button.id = "openai-run-all-button";
     button.className = className + " " + buttonClassName;
+    debugLog(`Adding run all button with class ${button.className}`);
 
     button.innerHTML = runIconHTML;
     button.onclick = () => toggleRunOrPause(button);
@@ -246,6 +247,7 @@ const addReloadButton = () => {
     const button = document.createElement("button");
     button.id = "openai-reload-button";
     button.className = className + " " + buttonClassName;
+    debugLog(`Adding reload button with class ${button.className}`);
 
     button.innerHTML = reloadIconHTML;
     button.onclick = () => initTranslationAreas();
@@ -257,11 +259,13 @@ const addReloadButton = () => {
 
 // initialize all the translation areas
 const initTranslationAreas = () => {
+    pushHandleDomChanges();
     removeTranslationAreas();
     originContents = getOriginalParagraphs();
     addTranslationAreas();
     addRunAllButton();
     addReloadButton();
+    popHandleDomChanges();
 }
 
 // initialize the translation areas when the page loads
@@ -274,12 +278,27 @@ const observer = new MutationObserver((mutations) => {
     if (!getHandleDomChanges()) {
         return;
     }
+    
+    // if the DOM changes are all from the translation areas, return
+    if (mutations.every(mutation => {
+        const target = mutation.target;
+        return target.className === className || target.parentNode.className === className;
+    })) {
+        return;
+    }
+
+    debugLog(`DOM changed, ${mutations.length} mutations`)
+    debugLog(mutations);
 
     // otherwise, handle the DOM changes
     pushHandleDomChanges();
     // initTranslationAreas();
     // show the reload button
-    document.getElementById("openai-reload-button").style.display = "block";
+    const reloadButton = document.getElementById("openai-reload-button");
+    if (reloadButton) {
+        debugLog("show reload button");
+        reloadButton.style.display = "block";
+    }
     popHandleDomChanges();
 });
 
