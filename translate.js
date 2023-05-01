@@ -146,6 +146,7 @@ const translationMethodMap = {
 const className = 'openai-translation-class';
 const buttonClassName = 'openai-translation-button-class';
 const spanClassName = 'openai-translation-span-class';
+const topClassName = 'openai-translation-top-class';
 // name for the translation area, button, and other elements
 // args: id - the id of the paragraph
 // returns a map for the ids of the translation area, button, and span
@@ -316,6 +317,19 @@ const toggleRunOrPause = async (sender) => {
     sender.innerHTML = runIconHTML;
 }
 
+// add a top span to contain the run all button and reload button
+
+const addTopSpan = () => {
+    const topSpan = document.createElement("span");
+    topSpan.id = "openai-top-span";
+    topSpan.className = className + " " + spanClassName;
+    debugLog(`Adding top span with class ${topSpan.className}`);
+
+    // insert the top span to the top of the page
+    document.body.insertBefore(topSpan, document.body.firstChild);
+}
+
+
 const addRunAllButton = () => {
     const button = document.createElement("button");
     button.id = "openai-run-all-button";
@@ -324,8 +338,8 @@ const addRunAllButton = () => {
 
     button.innerHTML = runIconHTML;
     button.onclick = () => toggleRunOrPause(button);
-    // insert the button to the top of the page
-    document.body.insertBefore(button, document.body.firstChild);
+    // insert the button to openai-top-span
+    document.getElementById("openai-top-span").appendChild(button);
 }
 
 // add reload button
@@ -338,8 +352,8 @@ const addReloadButton = () => {
 
     button.innerHTML = reloadIconHTML;
     button.onclick = () => initTranslationAreas();
-    // insert the button to the top of the page after the run all button
-    document.body.insertBefore(button, document.getElementById("openai-run-all-button").nextSibling);
+    // insert the button to openai-top-span
+    document.getElementById("openai-top-span").appendChild(button);
     // hide the button
     button.style.display = "none";
 }
@@ -350,6 +364,7 @@ const initTranslationAreas = () => {
     removeTranslationAreas();
     originContents = getOriginalParagraphs();
     addTranslationAreas();
+    addTopSpan();
     addRunAllButton();
     addReloadButton();
     popHandleDomChanges();

@@ -30,6 +30,14 @@
   z-index: 10000;
 }
 
+.openai-translation-top-class {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+}
+
 .openai-translation-span-class {
   color: #8d8aac;
 }
