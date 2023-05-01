@@ -29,3 +29,7 @@
   color: #333;
   z-index: 10000;
 }
+
+.openai-translation-span-class {
+  color: #8d8aac;
+}

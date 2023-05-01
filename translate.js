@@ -145,6 +145,7 @@ const translationMethodMap = {
 // class name for the translation area
 const className = 'openai-translation-class';
 const buttonClassName = 'openai-translation-button-class';
+const spanClassName = 'openai-translation-span-class';
 // name for the translation area, button, and other elements
 // args: id - the id of the paragraph
 // returns a map for the ids of the translation area, button, and span
@@ -248,7 +249,7 @@ const createTranslationArea = (id) => {
 
     const translation = document.createElement("span");
     translation.id = getElementName(id).spanName;
-    translation.className = className;
+    translation.className = className + " " + spanClassName;
 
     const button = document.createElement("button");
     button.id = getElementName(id).buttonName;
