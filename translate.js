@@ -171,13 +171,24 @@ const getOriginalParagraphs = () => {
         // get the parent node
         const parent = element.parentNode;
 
-        // if there is no parent, return false
+        // if there is no parent, return true
         if (!parent) {
-            return false;
+            return true;
         }
 
         // if the parent is already in the elements array, return true
         if (elements.includes(parent)) {
+            return true;
+        }
+
+        // if the parent style is position: fixed, return true
+        const style = window.getComputedStyle(parent);
+        if (style.position === "fixed") {
+            return true;
+        }
+
+        // if the parent class contains openai-translation-class, return true
+        if (parent.classList.contains(className)) {
             return true;
         }
 
