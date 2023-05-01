@@ -76,6 +76,9 @@ You can get an API key from <a href="https://platform.openai.com/account/api-key
         <label for="show-time-taken">Show Time Taken:</label>
         <input type="checkbox" id="show-time-taken" name="show-time-taken">
         <br>
+        <label for="sleep-time">Sleep Time (ms):</label>
+        <input type="number" id="sleep-time" name="sleep-time" min="0" max="10000">
+        <br>
         <input type="submit" value="Save">
     </form>
 `;
@@ -146,6 +149,14 @@ You can get an API key from <a href="https://platform.openai.com/account/api-key
         if (confirmation) {
             GM_setValue("openaiTranslationApiKey", "");
             alert("API key reset successful. Please reload the page to apply changes.");
+        }
+    });
+    // Toggle show configuration page menu command
+    GM_registerMenuCommand("Toggle OpenAI Translation Configuration Page", function () {
+        if (configPage.style.display === 'none') {
+            configPage.style.display = 'block';
+        } else {
+            configPage.style.display = 'none';
         }
     });
 })();
