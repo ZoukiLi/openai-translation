@@ -6,9 +6,10 @@
 // @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_registerMenuCommand
 // ==/UserScript==
 
-(async function() {
+(async function () {
     // Check if API key has been set, if not, prompt user for API key and store it securely
     const apiKey = GM_getValue("openaiTranslationApiKey");
     if (!apiKey) {
@@ -17,7 +18,7 @@
             GM_setValue("openaiTranslationApiKey", apiKeyInput);
         } else {
             alert(
-`Please enter an API key to use this script.
+                `Please enter an API key to use this script.
 You can get an API key from https://platform.openai.com/account/api-keys`);
             return;
         }
@@ -50,4 +51,12 @@ You can get an API key from https://platform.openai.com/account/api-keys`);
     const jsFile = document.createElement("script");
     jsFile.textContent = jsTextWithKey;
     document.body.appendChild(jsFile);
+    // Register reset API key menu command
+    GM_registerMenuCommand("Reset OpenAI API Key", function () {
+        const confirmation = confirm("Are you sure you want to reset your API key?");
+        if (confirmation) {
+            GM_setValue("openaiTranslationApiKey", "");
+            alert("API key reset successful. Please reload the page to apply changes.");
+        }
+    });
 })();

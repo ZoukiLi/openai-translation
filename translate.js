@@ -19,10 +19,18 @@ const pauseIconHTML = `
     <path d="M6 5h2v6H6V5zm4 0h2v6h-2V5z"/>
 </svg>
     `;
+const reloadIconHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+    <path d="M3.5 8a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0zm11-5.5A6.5 6.5 0 0 0 0 8c0 .967.217 1.888.6 2.722l-1.5
+    1.5 1.06 1.06 1.5-1.5A6.5 6.5 0 0 0 16 8a6.5
+    6.5 0 0 0-1.5-4.5l-1.5 1.5z"/>
+    <path d="M11 8h2v2h-2z"/>
+</svg>
+    `;
 
 // prompt to send to OpenAI's API
-const getPrompt = (text) => 
-`Translate the following paragraph into ${destinationLang}:
+const getPrompt = (text) =>
+    `Translate the following paragraph into ${destinationLang}:
 ${text}
 
 ${destinationLang} Translation:`;
@@ -232,12 +240,28 @@ const addRunAllButton = () => {
     document.body.insertBefore(button, document.body.firstChild);
 }
 
+// add reload button
+// do not show until dom changes
+const addReloadButton = () => {
+    const button = document.createElement("button");
+    button.id = "openai-reload-button";
+    button.className = className + " " + buttonClassName;
+
+    button.innerHTML = reloadIconHTML;
+    button.onclick = () => initTranslationAreas();
+    // insert the button to the top of the page after the run all button
+    document.body.insertBefore(button, document.getElementById("openai-run-all-button").nextSibling);
+    // hide the button
+    button.style.display = "none";
+}
+
 // initialize all the translation areas
 const initTranslationAreas = () => {
     removeTranslationAreas();
-    originContents = document.getElementsByTagName("p");
+    originContents = getOriginalParagraphs();
     addTranslationAreas();
     addRunAllButton();
+    addReloadButton();
 }
 
 // initialize the translation areas when the page loads
@@ -250,23 +274,19 @@ const observer = new MutationObserver((mutations) => {
     if (!getHandleDomChanges()) {
         return;
     }
-    // if mutation contains the translation area, return
-    for (const mutation of mutations) {
-        if (mutation.target.classList.contains(className)) {
-            return;
-        }
-    }
 
     // otherwise, handle the DOM changes
     pushHandleDomChanges();
-    initTranslationAreas();
+    // initTranslationAreas();
+    // show the reload button
+    document.getElementById("openai-reload-button").style.display = "block";
     popHandleDomChanges();
 });
 
 // start observing the DOM
 observer.observe(document.body, {
-  childList: true,
-  subtree: true,
+    childList: true,
+    subtree: true,
 });
 
 // flag to indicate whether the DOM changes should be handled

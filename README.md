@@ -8,4 +8,14 @@ OpenAI Text Translation Tool是一个基于OpenAI API构建的文本翻译工具
 
 [OpenAI API](https://beta.openai.com/docs/api-reference/translate)的使用方法请参考官方文档。
 
-(github.com/)下的网页不好使，有无大佬能来解决一下？
+[github](https://github.com/)下的网页不好使，有无大佬能来解决一下？
+
+## 使用方法
+
+1. 在[OpenAI API](https://beta.openai.com/docs/api-reference/translate)注册账号，获取API Key。
+2. 复制`temper-monkey.js`中的代码，粘贴到`Tampermonkey`的新建脚本中。
+3. 第一次使用时需要输入API Key, 以及选择翻译的语言，之后会自动保存。
+
+## 警告
+
+使用该工具需要遵守 OpenAI API 的使用条款和条件。本工具仅供个人学习和研究使用，不得用于商业用途。使用该工具所造成的一切后果由使用者自行承担。
