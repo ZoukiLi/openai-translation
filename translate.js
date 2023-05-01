@@ -218,10 +218,8 @@ const fetchTranslation = async (id, lang) => {
         return;
     }
     // show time at most 2 decimal places
-    pushHandleDomChanges();
     translation.textContent = result + (getShowTimeTaken() ? ` (${timeTaken.toFixed(2)} ms)` : "");
     translation.style.display = "block";
-    popHandleDomChanges();
 };
 
 
@@ -283,7 +281,6 @@ const runAllTranslation = async () => {
 }
 
 const toggleRunOrPause = async (sender) => {
-    pushHandleDomChanges();
     if (isRunning) {
         isRunning = false;
         sender.innerHTML = runIconHTML;
@@ -300,7 +297,6 @@ const toggleRunOrPause = async (sender) => {
 
     isRunning = false;
     sender.innerHTML = runIconHTML;
-    popHandleDomChanges();
 }
 
 const addRunAllButton = () => {
