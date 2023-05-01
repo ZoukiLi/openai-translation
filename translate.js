@@ -1,6 +1,8 @@
 const apiUrl = "https://api.openai.com/v1/completions";
 
-const apiKey = `<API_KEY_HERE>`;
+const apiKeyGet = `<API_KEY_HERE>`;
+const apiKeyGetOrSecret = apiKeyGet.match('API_KEY_HERE') ? secretApiKey : apiKeyGet;
+const apiKey = apiKeyGetOrSecret || '';
 const destinationLang = localStorage.getItem("openaiTranslationDestinationLang") || "Chinese (Simplified)";
 const showTimeTaken = true;
 const sleepTime = 1000;
@@ -171,7 +173,7 @@ const removeTranslationAreas = () => {
     const translationAreas = document.getElementsByClassName(className);
     for (const translationArea of translationAreas) {
         // remove the translation area from the document
-        document.body.removeChild(translationArea);
+        translationArea.remove();
     }
 }
 
