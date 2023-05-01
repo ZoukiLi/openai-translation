@@ -2,10 +2,18 @@ const apiUrl = "https://api.openai.com/v1/completions";
 
 const apiKeyGet = `<API_KEY_HERE>`;
 const apiKeyGetOrSecret = apiKeyGet.match('API_KEY_HERE') ? secretApiKey : apiKeyGet;
-const apiKey = apiKeyGetOrSecret || '';
-const destinationLang = localStorage.getItem("openaiTranslationDestinationLang") || "Chinese (Simplified)";
-const showTimeTaken = true;
-const sleepTime = 1000;
+const apiKey = apiKeyGetOrSecret ?? '';
+
+const getDestinationLang = () => localStorage.getItem("openaiTranslationDestinationLang") || "zh-CN";
+const getTranslationMethod = () => localStorage.getItem("openaiTranslationMethod") || "openai";
+const translationMethodMap = {
+    "openai": fetchOpenaiTranslation,
+    "deepl": fetchDeepLTranslation,
+};
+
+const getShowTimeTaken = () => JSON.parse(localStorage.getItem("openaiTranslationShowTimeTaken")) ?? false;
+const getSleepTime = () => localStorage.getItem("openaiTranslationSleepTime") ?? 1000;
+
 const tagNamesToCheck = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li"];
 
 // icons
@@ -26,12 +34,6 @@ const reloadIconHTML = `
 </svg>
     `;
 
-// prompt to send to OpenAI's API
-const getPrompt = (text) =>
-    `Translate the following paragraph into ${destinationLang}:
-${text}
-
-${destinationLang} Translation:`;
 // debug mode - set to true to see debug messages
 const debugLog = (message) => {
     // if debug not defined, set to false
@@ -45,8 +47,7 @@ const debugLog = (message) => {
 
 // Function to send a request to OpenAI's API
 // returns a promise that resolves to the translated text
-// on error, returns a promise that resolves to "Error translating text"
-const fetchOpenai = async (input) => {
+const fetchOpenaiResponse = async (input) => {
     const data = JSON.stringify({
         model: "text-davinci-003",
         prompt: input,
@@ -63,11 +64,62 @@ const fetchOpenai = async (input) => {
     })
         .then((response) => response.json())
         .then((json) => json.choices[0].text)
+}
+
+// prompt to send to OpenAI's API
+const getPrompt = (text) =>
+    `Translate the following paragraph into ${getDestinationLang()}:
+${text}
+
+${getDestinationLang()} Translation:`;
+// translate the text using the fetchOpenaiResponse function
+// returns a promise that resolves to the translated text
+// on error, returns a promise that resolves to "Error translating text"
+const fetchOpenaiTranslation = async (text, targetLang) => {
+    const prompt = getPrompt(text);
+    // send the prompt to OpenAI's API
+    const response = await fetchOpenaiResponse(prompt)
         .catch((error) => {
-            console.error(error);
+            debugLog(`Error: ${error.message}`);
             return "Error translating text";
         });
-}
+    return response;
+};
+
+// translate the text using the deep-translator API
+
+const fetchDeepLTranslation = async (text, targetLang) => {
+  const url = 'https://deep-translator-api.azurewebsites.net/google/';
+  const params = {
+    source: 'auto',
+    target: targetLang,
+    text: text,
+    proxies: []
+  };
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(params)
+    });
+
+    const result = await response.json();
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    return result.translation;
+  } catch (error) {
+    debugLog(`Error: ${error.message}`);
+    return "Error translating text";
+  }
+};
 
 // class name for the translation area
 const className = 'openai-translation-class';
@@ -122,19 +174,18 @@ const getOriginalParagraphs = () => {
 }
 let originContents = getOriginalParagraphs();
 
-// fetch the translation from OpenAI and display it
+// fetch the translation and display it
 const fetchTranslation = async (id, lang) => {
     const paragraph = originContents[id];
     const text = paragraph.textContent.trim();
     const cleanText = text.replace(/(<([^>]+)>)/gi, '');
     const words = cleanText.split(/\s+/);
     const wordsText = words.join(' ');
-    const prompt = getPrompt(wordsText);
-    debugLog(`Prompt: ${prompt}`);
 
     // time how long it takes to translate
     const startTime = performance.now();
-    const result = await fetchOpenai(prompt);
+    const translationFunction = translationMethodMap[getTranslationMethod()];
+    const result = await translationFunction(wordsText, lang);
     const endTime = performance.now();
     const timeTaken = endTime - startTime;
     debugLog(`Result: ${result}`);
@@ -147,7 +198,7 @@ const fetchTranslation = async (id, lang) => {
     }
     // show time at most 2 decimal places
     pushHandleDomChanges();
-    translation.textContent = result + (showTimeTaken ? ` (${timeTaken.toFixed(2)} ms)` : "");
+    translation.textContent = result + (getShowTimeTaken() ? ` (${timeTaken.toFixed(2)} ms)` : "");
     translation.style.display = "block";
     popHandleDomChanges();
 };
@@ -169,7 +220,7 @@ const createTranslationArea = (id) => {
     button.className = className + " " + buttonClassName;
     button.innerHTML = runIconHTML;
     // call fetchTranslation when the button is clicked
-    button.onclick = () => fetchTranslation(id, destinationLang);
+    button.onclick = () => fetchTranslation(id, getDestinationLang());
 
     translationArea.appendChild(button);
     translationArea.appendChild(translation);
@@ -205,8 +256,8 @@ const runAllTranslation = async () => {
         if (!isRunning) {
             break;
         }
-        await fetchTranslation(i, destinationLang);
-        await new Promise(r => setTimeout(r, sleepTime));
+        await fetchTranslation(i, getDestinationLang());
+        await new Promise(r => setTimeout(r, getSleepTime()));
     }
 }
 
