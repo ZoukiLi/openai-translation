@@ -9,19 +9,23 @@
   text-align: center;
   text-decoration: none;
   transition: background-color 0.3s ease, color 0.3s ease;
-  z-index: 1000;
+  z-index: 10000;
 }
 
 .openai-translation-button-class:hover {
   background-color: rgb(109, 150, 165);
   color: #333;
+  z-index: 10000;
 }
 
 .openai-translation-button-class:focus {
   background-color: #8d8aac;
   color: #333;
+  z-index: 10000;
 }
 
 .openai-translation-button-class:active {
   background-color: #6176d3;
+  color: #333;
+  z-index: 10000;
 }
