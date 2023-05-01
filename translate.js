@@ -6,10 +6,6 @@ const apiKey = apiKeyGetOrSecret ?? '';
 
 const getDestinationLang = () => localStorage.getItem("openaiTranslationDestinationLang") || "zh-CN";
 const getTranslationMethod = () => localStorage.getItem("openaiTranslationMethod") || "openai";
-const translationMethodMap = {
-    "openai": fetchOpenaiTranslation,
-    "deepl": fetchDeepLTranslation,
-};
 
 const getShowTimeTaken = () => JSON.parse(localStorage.getItem("openaiTranslationShowTimeTaken")) ?? false;
 const getSleepTime = () => localStorage.getItem("openaiTranslationSleepTime") ?? 1000;
@@ -120,6 +116,12 @@ const fetchDeepLTranslation = async (text, targetLang) => {
     return "Error translating text";
   }
 };
+
+const translationMethodMap = {
+    "openai": fetchOpenaiTranslation,
+    "deepl": fetchDeepLTranslation,
+};
+
 
 // class name for the translation area
 const className = 'openai-translation-class';
