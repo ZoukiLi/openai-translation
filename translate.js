@@ -116,9 +116,29 @@ const fetchDeepLTranslation = async (text, targetLang) => {
     }
 };
 
+// Simple word count function to test the example
+const wordCount = async (text, targetLang) => {
+    const words = text.split(" ");
+    // count the number of english words
+    const englishWords = words.filter((word) => {
+        return word.match(/[a-z',.]/i);
+    });
+    // count the number of non-english words
+    const nonEnglishWords = words.filter((word) => {
+        return !word.match(/[a-z',.]/i);
+    });
+    const result1 = `English words: ${englishWords.length}`;
+    const result2 = `Non-English words: ${nonEnglishWords.length}`;
+    const result3 = `Total words: ${words.length}`;
+    return `${result1}\n${result2}\n${result3}`;
+};
+
+// map of translation methods
+
 const translationMethodMap = {
     "openai": fetchOpenaiTranslation,
     "deepl": fetchDeepLTranslation,
+    "wordcount": wordCount,
 };
 
 
@@ -323,7 +343,23 @@ const initTranslationAreas = () => {
 }
 
 // initialize the translation areas when the page loads
-window.onload = initTranslationAreas;
+let initialized = false;
+window.onload = () => {
+    initTranslationAreas();
+    initialized = true;
+}
+
+// initialize the translation areas every 0.5 seconds after the page loads
+const initTranslationAreasInterval = 500;
+const initTranslationTimer = setInterval(() => {
+    if (!initialized) {
+        initTranslationAreas();
+        initialized = true;
+    } else {
+        clearInterval(initTranslationTimer);
+    }
+}, initTranslationAreasInterval);
+
 
 // handel dom change
 // set up the mutation observer
@@ -359,4 +395,3 @@ let handleDomChangesDepth = 0;
 let pushHandleDomChanges = () => handleDomChangesDepth++;
 let popHandleDomChanges = () => handleDomChangesDepth--;
 let getHandleDomChanges = () => handleDomChangesDepth === 0;
-

@@ -29,7 +29,7 @@ You can get an API key from <a href="https://platform.openai.com/account/api-key
     localStorage.setItem("openaiTranslationTargetLang", targetLang);
 
     // Check if translation method has been set, if not, set it to default value
-    const translationMethod = GM_getValue("openaiTranslationMethod") || "openai";
+    const translationMethod = GM_getValue("openaiTranslationMethod") || "wordcount";
     localStorage.setItem("openaiTranslationMethod", translationMethod);
 
     // Check if show time taken has been set, if not, set it to default value
@@ -71,6 +71,7 @@ You can get an API key from <a href="https://platform.openai.com/account/api-key
         <select id="translation-method" name="translation-method">
             <option value="openai">OpenAI</option>
             <option value="deepl">DeepL</option>
+            <option value="wordcount">Word Count</option>
         </select>
         <br>
         <label for="show-time-taken">Show Time Taken:</label>
