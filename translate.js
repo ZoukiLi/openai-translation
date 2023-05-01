@@ -4,7 +4,7 @@ const apiKeyGet = `<API_KEY_HERE>`;
 const apiKeyGetOrSecret = apiKeyGet.match('API_KEY_HERE') ? secretApiKey : apiKeyGet;
 const apiKey = apiKeyGetOrSecret ?? '';
 
-const getDestinationLang = () => localStorage.getItem("openaiTranslationDestinationLang") || "zh-CN";
+const getDestinationLang = () => localStorage.getItem("openaiTranslationTargetLang") || "zh-CN";
 const getTranslationMethod = () => localStorage.getItem("openaiTranslationMethod") || "openai";
 
 const getShowTimeTaken = () => JSON.parse(localStorage.getItem("openaiTranslationShowTimeTaken")) ?? false;
