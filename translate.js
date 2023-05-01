@@ -36,7 +36,11 @@ ${text}
 ${destinationLang} Translation:`;
 // debug mode - set to true to see debug messages
 const debugLog = (message) => {
-    if (debug !== undefined && debug) {
+    // if debug not defined, set to false
+    if (typeof debug === "undefined") {
+        debug = false;
+    }
+    if (debug) {
         console.log(message);
     }
 };
